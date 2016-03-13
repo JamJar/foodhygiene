@@ -25,14 +25,21 @@ def get_percentage_n_stars_by_authority_id(authority_id,num_stars):
     establishments = get_n_star_establishments_by_authority_id(authority_id,num_stars)
     num_establishments = Decimal(authority['EstablishmentCount'])
     num_n_stars = Decimal(len(establishments['establishments']))
+    if num_n_stars == 0:
+        return None
     return (num_n_stars / num_establishments) * 100
 
-def authority_breakdown_by_region(region_name,num_stars):
-    authorities = get_authorities_by_region(region_name)
+def authority_breakdown_by_region(num_stars,region_name=None,all_regions=False):
+    if all_regions == True:
+        authorities = request_data('Authorities')['authorities']
+    else:
+        authorities = get_authorities_by_region(region_name)
     results = {}
     for authority in authorities:
-        results[authority['Name']] = get_percentage_n_stars_by_authority_id(
-            authority['LocalAuthorityId'],num_stars)
+        result = get_percentage_n_stars_by_authority_id(
+                authority['LocalAuthorityId'],num_stars)
+        if result != None:
+            results[authority['Name']] = result
     return results
 
 def sorted_dict(d,reverse=True):
